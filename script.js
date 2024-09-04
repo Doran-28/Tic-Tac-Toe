@@ -59,7 +59,7 @@ function game(){
     let gameboard = gameBoard();
     const instruction = document.querySelector("p");
 
-    const playGame = function(){
+    const playGame = async function(){
         let turn = true;
 
         for (let i = 0; i < 9; i++){ // Max of 9 moves
@@ -67,12 +67,14 @@ function game(){
             let char = turn ? 'X' : 'O';
             let player = turn ? p1 : p2;
             instruction.textContent = `${player.name}'s turn`;
-            row = dom.getCoords().row;
-            col = dom.getCoords().col;
+            coords = await dom.getCoords();
+            let row = coords.row;
+            let col = coords.col;
 
             while (!gameboard.validPlay(row, col)){
-                row = dom.getCoords().row;
-                col = dom.getCoords().col;
+                coords = await dom.getCoords();
+                row = coords.row;
+                col = coords.col;
             }
 
             gameboard.play(char, row, col);
@@ -80,7 +82,7 @@ function game(){
 
             // If someone wins, stop game loop
             if (gameboard.isWinner(char)){
-                console.log(player.name + "Wins");
+                console.log(player.name + " Wins");
                 isWinner = true;
                 break;
             }   
@@ -95,23 +97,24 @@ function game(){
 
 function DOM(){
 
-    let row = null;
-    let col = null;
 
-    const cells = document.querySelectorAll('.cell');
-    cells.forEach(element => {
-        element.addEventListener("click", () =>{
-            row = element.getAttribute('data-row');
-            col = element.getAttribute('data-col');
+    function waitForClick() {
+        return new Promise((resolve) => {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach(element => {
+                element.addEventListener("click", () => {
+                    const row = element.getAttribute('data-row');
+                    const col = element.getAttribute('data-col');
+                    resolve({ row, col }); // Resolve the promise with the coordinates
+                }, { once: true });
+            });
         });
-    });
+    }
 
-    function getCoords(){
-        while (row == null && col == null){
-            console.log(row, col)
-        }
-        console.log(row, col)
-        return {row, col};
+    async function getCoords(){
+        let coords = await waitForClick();
+        console.log(coords)
+        return coords;
     }
 
     function writeCell(char, row, col){
@@ -121,10 +124,6 @@ function DOM(){
     return {writeCell, getCoords}
 }
 
-let dom = DOM()
-dom.getCoords();
-
-
 
 
 
@@ -132,4 +131,4 @@ dom.getCoords();
 
 
 const myGame = game();
-//myGame.playGame();
+myGame.playGame();
