@@ -15,5 +15,9 @@ body{
 
 
 .cell{
+    font-size: 3em;
     border: 2px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }

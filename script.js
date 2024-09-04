@@ -84,12 +84,14 @@ function game(){
             if (gameboard.isWinner(char)){
                 console.log(player.name + " Wins");
                 isWinner = true;
+                instruction.textContent = `${player.name} Wins`;
                 break;
             }   
             turn = !turn
         }
         if (!isWinner){ // If moves are done, check if tie
             console.log("It's a tie!");
+            instruction.textContent = "It's a tie!";
         }
     }
     return {playGame};
