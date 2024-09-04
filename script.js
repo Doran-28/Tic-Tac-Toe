@@ -35,47 +35,101 @@ function gameBoard(){
         else
             return false;
     }
+    function printBoard(){
+        console.log(gameBoard);
+    }
 
-    return {play, isWinner, validPlay};
+    return {play, isWinner, validPlay, isTie, printBoard};
 }
+
+
 
 const player = function(name){
     return {name};
 }
 
+
+
 function game(){
-    p1 = player("PlayerOne");
-    p2 = player("PlayerTwo");
-    const gameBoard = gameBoard();
+
+    const dom = DOM();
+    let p1 = player("Player One");
+    let p2 = player("Player Two");
+    let isWinner = false;
+    let gameboard = gameBoard();
+    const instruction = document.querySelector("p");
 
     const playGame = function(){
         let turn = true;
-        while (true){
-            let row = promt("Enter row");
-            let col = promt("Enter col");
+
+        for (let i = 0; i < 9; i++){ // Max of 9 moves
+
             let char = turn ? 'X' : 'O';
             let player = turn ? p1 : p2;
+            instruction.textContent = `${player.name}'s turn`;
+            row = dom.getCoords().row;
+            col = dom.getCoords().col;
 
-            if (gameBoard.validPlay())
-                gameBoard.play(char, row, col)
-            else{
-                row = promt("Enter row");
-                col = promt("Enter col");
+            while (!gameboard.validPlay(row, col)){
+                row = dom.getCoords().row;
+                col = dom.getCoords().col;
             }
 
-            if (gameBoard.isWinner()){
-                console.log(player)
-            }
-            if (gameBoard.isTie()){
-                
-            }
-        
+            gameboard.play(char, row, col);
+            dom.writeCell(char, row, col);
 
-
-
+            // If someone wins, stop game loop
+            if (gameboard.isWinner(char)){
+                console.log(player.name + "Wins");
+                isWinner = true;
+                break;
+            }   
             turn = !turn
         }
+        if (!isWinner){ // If moves are done, check if tie
+            console.log("It's a tie!");
+        }
+    }
+    return {playGame};
+}
+
+function DOM(){
+
+    let row = null;
+    let col = null;
+
+    const cells = document.querySelectorAll('.cell');
+    cells.forEach(element => {
+        element.addEventListener("click", () =>{
+            row = element.getAttribute('data-row');
+            col = element.getAttribute('data-col');
+        });
+    });
+
+    function getCoords(){
+        while (row == null && col == null){
+            console.log(row, col)
+        }
+        console.log(row, col)
+        return {row, col};
     }
 
-
+    function writeCell(char, row, col){
+        const cell = document.querySelector(`div[data-row="${row}"][data-col="${col}"]`);
+        cell.textContent = char
+    }
+    return {writeCell, getCoords}
 }
+
+let dom = DOM()
+dom.getCoords();
+
+
+
+
+
+
+
+
+const myGame = game();
+//myGame.playGame();
